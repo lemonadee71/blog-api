@@ -14,13 +14,14 @@ const tags = [
   'react',
 ];
 
-const createFakePosts = (n, author) =>
+const createFakePosts = (n, author, published = true) =>
   new Array(n).fill().map(() => ({
     author,
     title: faker.word.words({ count: { min: 5, max: 10 } }),
     summary: faker.lorem.sentences({ min: 1, max: 3 }),
     body: faker.lorem.paragraphs({ min: 3, max: 10 }),
     tags: tags.slice(rand(), rand(tags.length)),
+    published,
   }));
 
 const createFakeComments = (n, author, post) =>
@@ -50,7 +51,9 @@ module.exports = async () => {
 
   const posts = await Post.create([
     ...createFakePosts(4, 'user'),
-    ...createFakePosts(4, 'lemon'),
+    ...createFakePosts(2, 'user', false),
+    ...createFakePosts(2, 'lemon'),
+    ...createFakePosts(4, 'lemon', false),
     ...createFakePosts(4, 'admin'),
   ]);
 
