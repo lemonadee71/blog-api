@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-const { NotFoundError } = require('../utils');
+const escapeHTML = require('escape-html');
+const { NotFoundError, convertToMarkdown } = require('../utils');
 const { Timestamp } = require('./utils');
 
 const createSlug = function (value) {
@@ -38,10 +39,21 @@ const PostSchema = new Schema({
     },
   },
   summary: { type: String, trim: true, maxLength: 300 },
-  body: { type: String, trim: true },
-  tags: [{ type: String }],
-  private: { type: Boolean, default: false },
+  body_html: {
+    type: String,
+    alias: 'body',
+    trim: true,
+    get: escapeHTML,
+    set: function (str) {
+      this.body_markdown = str;
+      return str;
+    },
+  },
+  body_markdown: { type: String, trim: true, set: convertToMarkdown },
+  tags: [String],
+  published: { type: Boolean, default: true },
   date_created: Timestamp,
+  last_updated: Timestamp,
 });
 
 PostSchema.virtual('shorturl').get(function () {
@@ -60,12 +72,17 @@ PostSchema.statics.findByShortId = function (shortid) {
   return this.findOne({ shortid }).orFail(new NotFoundError('Post not found'));
 };
 
-PostSchema.statics.findBySlug = function (slug) {
-  return this.findOne({ slug }).orFail(new NotFoundError('Post not found'));
-};
+// We might want to enable this only if user is also provided
+// PostSchema.statics.findBySlug = function (slug) {
+//   return this.findOne({ slug }).orFail(new NotFoundError('Post not found'));
+// };
 
 PostSchema.statics.findByAuthor = function (username) {
   return this.find({ author: username });
+};
+
+PostSchema.statics.findByTag = function (tag) {
+  return this.find({ tags: tag });
 };
 
 module.exports = mongoose.model('Post', PostSchema);

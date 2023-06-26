@@ -12,7 +12,7 @@ const UserSchema = new Schema({
     alias: 'username',
     set: (value) => value.replace(' ', '-').toLowerCase(),
   },
-  email: { type: String, required: true },
+  // email: { type: String, required: true },
   password: { type: String, required: true },
   display_name: {
     type: String,
@@ -25,10 +25,6 @@ const UserSchema = new Schema({
   token: String,
   token_date_created: Timestamp,
   date_created: Timestamp,
-});
-
-UserSchema.virtual('url').get(function () {
-  return `/u/${this.username}`;
 });
 
 UserSchema.pre('save', async function () {
@@ -55,8 +51,8 @@ UserSchema.statics.findByName = function (username) {
   return this.findById(username).orFail(new NotFoundError('User not found'));
 };
 
-UserSchema.statics.findByEmail = function (email) {
-  return this.findOne({ email }).orFail(new NotFoundError('User not found'));
-};
+// UserSchema.statics.findByEmail = function (email) {
+//   return this.findOne({ email }).orFail(new NotFoundError('User not found'));
+// };
 
 module.exports = mongoose.model('User', UserSchema);
