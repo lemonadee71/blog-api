@@ -1,4 +1,4 @@
-const Showdown = require('showdown');
+const TurndownService = require('turndown');
 
 exports.NotFoundError = class extends Error {
   constructor(message) {
@@ -7,21 +7,7 @@ exports.NotFoundError = class extends Error {
   }
 };
 
-exports.convertToMarkdown = (str) =>
-  new Showdown.Converter({
-    omitExtraWLInCodeBlocks: true,
-    noHeaderId: true,
-    ghCompatibleHeaderId: true,
-    headerLevelStart: 2,
-    parseImgDimensions: true,
-    strikethrough: true,
-    tables: true,
-    ghCodeBlocks: true,
-    ghMentions: true,
-    tasklists: true,
-    smartIndentationFix: true,
-    simpleLineBreaks: true,
-    openLinksInNewWindow: true,
-    backslashEscapesHTMLTags: true,
-    emoji: true,
-  }).makeMarkdown(str);
+exports.convertToMarkdown = (str) => {
+  const service = new TurndownService();
+  return service.turndown(str);
+};
