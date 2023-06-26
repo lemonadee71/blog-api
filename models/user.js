@@ -44,6 +44,7 @@ UserSchema.methods.comparePassword = function (input) {
 UserSchema.methods.toSafeObject = function () {
   const o = this.toObject({ virtuals: true });
   delete o.password;
+  delete o.token;
   return o;
 };
 

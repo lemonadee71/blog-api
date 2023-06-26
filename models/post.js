@@ -56,16 +56,8 @@ const PostSchema = new Schema({
   last_updated: Timestamp,
 });
 
-PostSchema.virtual('shorturl').get(function () {
-  return `/${this.author}/${this.shortid}`;
-});
-
-PostSchema.virtual('url').get(function () {
-  return `/${this.author}/${this.slug}-${this.shortid}`;
-});
-
 PostSchema.methods.toSafeObject = function () {
-  return this.toObject({ getters: true, virtuals: true });
+  return this.toObject({ getters: true });
 };
 
 PostSchema.statics.findByShortId = function (shortid) {

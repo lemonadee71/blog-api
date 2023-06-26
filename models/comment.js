@@ -3,6 +3,7 @@ const { Timestamp, ObjectId } = require('./utils');
 
 const Schema = mongoose.Schema;
 
+// TODO: Allow html and md body
 const CommentSchema = new Schema({
   author: { type: String, ref: 'User', required: true },
   post: { type: ObjectId, ref: 'Post', required: true },
@@ -11,7 +12,7 @@ const CommentSchema = new Schema({
 });
 
 CommentSchema.methods.toSafeObject = function () {
-  return this.toObject({ getters: true, virtuals: true });
+  return this.toObject({ getters: true });
 };
 
 CommentSchema.statics.findByAuthor = function (username) {
