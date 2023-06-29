@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "NODE_ENV=production node ./bin/www",
-    "watch": "NODE_ENV=development nodemon ./bin/www",
+    "dev": "NODE_ENV=development nodemon ./bin/www",
     "lint": "eslint . --ext .js --ignore-pattern node_modules/",
     "test": "jest",
     "test:watch": "jest --watch"
