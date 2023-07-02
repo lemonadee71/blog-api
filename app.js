@@ -13,11 +13,16 @@ const postsRouter = require('./routes/post');
 const app = express();
 
 app.use(logger('dev'));
-app.use(cors());
+// TODO: Have different cors config for API since we need to allow it for all
+// We can't use { credentials: 'include' } on client if we don't do this
+// See https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS/Errors/CORSNotSupportingCredentials
+app.use(cors({ origin: process.env.CLIENT_ORIGIN, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(require('./middlewares/session'));
+app.use(require('./middlewares/passport'));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
