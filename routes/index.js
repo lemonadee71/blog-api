@@ -7,5 +7,6 @@ router.get('/t/:tag', postController.all.get.byTag);
 router.get('/user', controller.isAuthenticated);
 router.post('/login', controller.login);
 router.post('/logout', controller.logout);
+router.post('/images', controller.uploadImages);
 
 module.exports = router;

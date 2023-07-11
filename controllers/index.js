@@ -1,5 +1,19 @@
+const path = require('path');
 const { body, validationResult } = require('express-validator');
 const passport = require('passport');
+const multer = require('multer');
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, './public/tmp');
+    },
+    filename: function (req, file, cb) {
+      const ext = path.extname(file.originalname);
+      cb(null, `${file.fieldname}__${Date.now()}${ext}`);
+    },
+  }),
+});
 
 module.exports = {
   isAuthenticated: (req, res) => {
@@ -57,5 +71,12 @@ module.exports = {
     },
     // BUG: This is not catching the error
     (err, req, res, next) => res.json({ success: false, message: err.message }),
+  ],
+
+  uploadImages: [
+    upload.single('file'),
+    (req, res) => {
+      res.json({ location: `/tmp/${req.file.filename}` });
+    },
   ],
 };
