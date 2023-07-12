@@ -43,7 +43,6 @@ const PostSchema = new Schema({
     type: String,
     alias: 'body',
     trim: true,
-    get: escapeHTML,
     set: function (str) {
       this.body_markdown = str;
       return str;
@@ -60,8 +59,12 @@ PostSchema.pre('save', async function () {
   this.last_updated = Date.now();
 });
 
+PostSchema.virtual('body_html_escaped').get(function () {
+  return escapeHTML(this.body_html);
+});
+
 PostSchema.methods.toSafeObject = function () {
-  return this.toObject({ getters: true });
+  return this.toObject({ getters: true, virtuals: true });
 };
 
 PostSchema.statics.findByShortId = function (shortid) {
