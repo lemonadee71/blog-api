@@ -56,12 +56,23 @@ const PostSchema = new Schema({
   last_updated: Timestamp,
 });
 
+PostSchema.pre('save', async function () {
+  this.last_updated = Date.now();
+});
+
 PostSchema.methods.toSafeObject = function () {
   return this.toObject({ getters: true });
 };
 
 PostSchema.statics.findByShortId = function (shortid) {
   return this.findOne({ shortid }).orFail(new NotFoundError('Post not found'));
+};
+
+PostSchema.statics.createDraftOrUpdate = function (filter, update) {
+  return this.findOneAndUpdate(filter, update, {
+    new: true,
+    upsert: true,
+  });
 };
 
 // We might want to enable this only if user is also provided

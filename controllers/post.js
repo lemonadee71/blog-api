@@ -1,6 +1,6 @@
-const { param } = require('express-validator');
+const { param, body } = require('express-validator');
+const { ifNotFound, isLoggedIn, finishValidation } = require('./utils');
 const Post = require('../models/post');
-const { ifNotFound } = require('./utils');
 
 module.exports = {
   index: {
@@ -16,6 +16,90 @@ module.exports = {
         }
       },
       ifNotFound(),
+    ],
+    post: [
+      isLoggedIn,
+      body('title')
+        .trim()
+        .escape()
+        .isLength({ min: 5, max: 150 })
+        .withMessage(
+          'Must be at least 5 characters and no more than 150 characters'
+        ),
+      body('summary')
+        .optional()
+        .trim()
+        .escape()
+        .isLength({ max: 300 })
+        .withMessage('Must be no more than 300 characters'),
+      body('body').trim(),
+      body('published').optional({ checkFalsy: true }).toBoolean(),
+      finishValidation()
+        .ifSuccess(async (req, res) => {
+          const post = new Post({
+            author: req.user.username,
+            title: req.body.title,
+            summary: req.body.summary ?? '',
+            body: req.body.body,
+            tags: req.body.tags ?? [],
+            published: req.body.published ?? true,
+          });
+
+          await post.save();
+
+          res.json({
+            message: 'Post created',
+            post: post.toSafeObject(),
+          });
+        })
+        .ifHasError((errors, req, res) => {
+          res.status(400).json({ errors });
+        }),
+    ],
+    put: [
+      isLoggedIn,
+      param('postid').escape(),
+      body('title')
+        .trim()
+        .escape()
+        .isLength({ min: 5, max: 150 })
+        .withMessage(
+          'Must be at least 5 characters and no more than 150 characters'
+        ),
+      body('summary')
+        .optional()
+        .trim()
+        .escape()
+        .isLength({ max: 300 })
+        .withMessage('Must be no more than 300 characters'),
+      body('body').trim(),
+      body('published').optional({ checkFalsy: true }).toBoolean(),
+      finishValidation()
+        .ifSuccess(async (req, res) => {
+          try {
+            const post = await Post.findByShortId(req.params.postid);
+
+            Object.assign(post, {
+              title: req.body.title,
+              summary: req.body.summary ?? '',
+              body: req.body.body,
+              tags: req.body.tags ?? [],
+              published: req.body.published ?? post.published,
+            });
+
+            await post.save();
+
+            res.json({
+              message: 'Post updated',
+              post: post.toSafeObject(),
+            });
+          } catch (error) {
+            res.status(400).json({ errors: error });
+          }
+        })
+        .ifHasError((errors, req, res) => {
+          res.status(400).json({ errors });
+        }),
     ],
   },
   all: {
