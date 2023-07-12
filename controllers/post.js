@@ -8,7 +8,9 @@ module.exports = {
       param('postid').escape(),
       async (req, res, next) => {
         try {
-          const post = await Post.findByShortId(req.params.postid);
+          const post = await Post.findByShortId(req.params.postid)
+            .populate('author')
+            .exec();
 
           return res.json({ post: post.toSafeObject() });
         } catch (error) {
