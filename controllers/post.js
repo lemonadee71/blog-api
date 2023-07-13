@@ -108,7 +108,7 @@ module.exports = {
     get: {
       _: [
         async (req, res) => {
-          let posts = await Post.find({});
+          let posts = await Post.find({}).sort({ date_created: 'desc' });
           posts = (posts || []).map((post) => post.toSafeObject());
 
           return res.json({ posts });
@@ -117,7 +117,9 @@ module.exports = {
       byTag: [
         param('tag').escape(),
         async (req, res) => {
-          let posts = await Post.findByTag(req.params.tag);
+          let posts = await Post.findByTag(req.params.tag).sort({
+            date_created: 'desc',
+          });
           posts = (posts || []).map((post) => post.toSafeObject());
 
           return res.json({ posts });
@@ -128,7 +130,9 @@ module.exports = {
       byAuthor: [
         param('username').escape(),
         async (req, res) => {
-          const query = Post.findByAuthor(req.params.username);
+          const query = Post.findByAuthor(req.params.username).sort({
+            date_created: 'desc',
+          });
 
           if (req.query.published) {
             query.where('published').equals(req.query.published === 'true');
